@@ -304,7 +304,7 @@ void Customer::rate_product(int pro_id)
 	Mess("Rating complented successfully");
 }
 
-void Customer::display_cart_content()
+void Customer::display_cart_content(bool flag)
 {
 	Menu("DISPLAY CART CONTENT");
 	if (this->customer_cart.list_of_products.size() == 0) {
@@ -317,6 +317,7 @@ void Customer::display_cart_content()
 		cout << " " << the_Products[pro.first].name << " x" << pro.second << ",";
 	}
 	cout << "\b )\n";
+	if (!flag) return;
 	cout << "\nEnter any thing to go back -> ";
 	string s;
 	getline(cin, s);
@@ -329,20 +330,37 @@ void Customer::confirm_the_buying()
 		Mess("Your Cart is empty");
 		return;
 	}
-	this->display_cart_content();
+	this->display_cart_content(false);
 	string ans;
 	cout << "Confirm the buying? (Y/y) -> ";
 	getline(cin, ans);
 	if (ans != "Y" && ans != "y")
 	{
-		string cat;
-		for (const auto& pro : this->customer_cart.list_of_products)
-			the_Products[pro.first].quantity += pro.second;
-
-		Mess("The buying process canceled successfully");
+		cout << "Do you want to clear your cart? (Y/y) -> ";
+		getline(cin, ans);
+		if (ans == "Y" || ans == "y") {
+			for (const auto& pro : this->customer_cart.list_of_products)
+				the_Products[pro.first].quantity += pro.second;
+			Mess("Your cart cleared successfully");
+		}
+		else
+			Mess("The buying process canceled successfully");
 	}
 	else {
 		cout << "\nThe total price is " << this->customer_cart.total_price << endl;
+		auto it = the_Products.begin();
+		for (const auto& pro : this->customer_cart.list_of_products)
+		{
+			it = the_Products.find(pro.first);
+			if (it->second.quantity == 0) {
+				auto it2 = the_Categories.find(it->second.category);
+				it2->second.erase(it->first);
+				if (it2->second.size() == 0) {
+					the_Categories.erase(it2);
+				}
+				the_Products.erase(it);
+			}
+		}
 		Mess("The buying process completed successfully");
 	}
 	this->customer_cart.list_of_products.clear();
@@ -364,7 +382,7 @@ void Customer::menu()
 			this->browse_by_category();
 		}
 		else if (ans == "3") {
-			this->display_cart_content();
+			this->display_cart_content(true);
 		}
 		else if (ans == "4") {
 			this->confirm_the_buying();
@@ -382,4 +400,3 @@ void Customer::menu()
 		}
 	}
 }
-

@@ -92,7 +92,7 @@ public:
 	bool add_product_to_cart(Product* pro_ptr, int quantity);
 	void rate_seller(string seller_username);
 	void rate_product(int pro_id);
-	void display_cart_content();
+	void display_cart_content(bool flag);
 	void confirm_the_buying();
 };
 
